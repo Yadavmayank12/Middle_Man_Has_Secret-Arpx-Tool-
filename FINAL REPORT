@@ -1,0 +1,343 @@
+ 
+Institute of Engineering & Technology
+Department of Computer Engineering & Applications
+
+ARPx
+ARP Network Security & Analysis Tool
+
+A Project Report submitted in partial fulfilment of the requirements for the award of the degree of
+
+Bachelor of Technology
+in
+Computer Science and Engineering
+(Specialization: Cyber Security & Forensics)
+
+by
+
+Mayank Singh
+Ketan Verma
+
+Under the Guidance of
+Mr. Rahul Sandaliya
+Department of Computer Engineering & Applications
+
+
+GLA University
+Mathura - 281006, INDIA
+
+April, 2026
+
+
+DECLARATION
+
+We hereby declare that the work which is being presented in the B.Tech. Mini Project "ARPx — ARP Network Security & Analysis Tool", in partial fulfillment of the requirements for the award of the Bachelor of Technology in Computer Science and Engineering (Specialization: Cyber Security & Forensics), submitted to the Department of Computer Engineering and Applications of GLA University, Mathura, is an authentic record of our own work carried under the supervision of Mr. Rahul Sandaliya, Department of Computer Engineering & Applications, GLA University, Mathura.
+The contents of this project report, in full or in parts, have not been submitted to any other Institute or University for the award of any degree.
+
+
+Sign ____________________          Sign ____________________
+Name: Mayank Singh          Name: Ketan Verma
+University Roll No.: __________     University Roll No.: __________
+
+
+CERTIFICATE
+
+This is to certify that the Project Report entitled "ARPx — ARP Network Security & Analysis Tool" submitted by Mayank Singh and Ketan Verma to the Department of Computer Engineering and Applications, GLA University, Mathura, in partial fulfillment of the requirements for the award of Bachelor of Technology in Computer Science and Engineering (Specialization: Cyber Security & Forensics), is a bonafide record of the project work done under our supervision.
+The above statements made by the candidates are correct to the best of our knowledge and belief.
+
+
+_________________________
+Supervisor
+(Mr. Rahul Sandaliya)
+Assistant/Associate Professor
+Dept. of Computer Engg. & App., GLA University
+
+
+______________________          ______________________
+Project Co-ordinator               Program Co-ordinator
+(Dr. Mayank Srivastava)          (Dr. Nikhil Govil)
+Associate Professor               Associate Professor
+Dept. of Computer Engg. & App.    Dept. of Computer Engg. & App.
+Date: __________________
+
+
+ACKNOWLEDGEMENT
+
+We would like to express our sincere gratitude to our supervisor for their constant guidance, encouragement, and valuable feedback throughout this project. Their insights into network security and ethical hacking concepts have been instrumental in shaping the ARPx tool.
+We are thankful to the Department of Computer Engineering & Applications, GLA University, Mathura, for providing us with the laboratory infrastructure and computational resources necessary to carry out the testing and implementation.
+Special thanks go to our test team — Shashank Saini, Mayank Sharma, and Nitin Agrawal — whose diligent testing on the isolated virtual network environment helped validate the tool thoroughly.
+We also extend our gratitude to the faculty members and seniors who offered guidance and constructive criticism at various stages of this project.
+
+
+Sign _____________________
+Name of Candidate: Mayank Singh
+University Roll No.: __________
+
+Sign _____________________
+Name of Candidate: Ketan Verma
+University Roll No.: __________
+
+
+ABSTRACT
+
+ARPx (ARP Analyzer Pro) is a Python-based network security toolkit developed by students of GLA University, Mathura, as part of the B.Tech. Mini Project for the Cyber Security & Forensics specialization. The tool demonstrates real-world Man-in-the-Middle (MitM) attack techniques and detection strategies in a controlled, educational environment using the Scapy packet manipulation library. The Address Resolution Protocol (ARP) is an inherently insecure Layer 2 protocol that lacks authentication, making it vulnerable to cache-poisoning attacks. ARPx exploits this vulnerability in a controlled lab environment to illustrate the complete lifecycle of an ARP-based attack.
+The tool provides three core capabilities: (1) Network Scanning — discovering all active hosts on a subnet using ARP broadcast packets; (2) ARP Spoofing Simulation — poisoning ARP caches to simulate a MitM attack and intercept traffic flow; and (3) ARP Spoof Detection — passively sniffing ARP traffic and alerting in real-time when MAC-to-IP inconsistencies are detected. A professional dark-themed graphical user interface (GUI) was built using Python Tkinter, with all network operations executing in background threads to maintain interface responsiveness.
+Testing was conducted on an isolated VirtualBox Host-Only network using Kali Linux as the attacker machine and Windows 10 as the victim. All seven test cases passed successfully, including network scan verification, ARP cache poisoning confirmation, automatic ARP table restoration, and real-time detection. The project provides a strong academic foundation for understanding network-layer vulnerabilities, ethical hacking methodology, and the importance of network-level security controls in modern enterprise environments.
+
+Keywords: ARP Spoofing, Man-in-the-Middle Attack, Network Security, Scapy, Python, Ethical Hacking, ARP Cache Poisoning, Intrusion Detection.
+
+
+CONTENTS
+
+Declaration	ii
+Certificate	iii
+Acknowledgement	iv
+Abstract	v
+List of Figures	vi
+List of Tables	vii
+
+CHAPTER 1   Introduction	1
+   1.1   Overview and Motivation	2
+   1.2   Objective	3
+   1.3   Issues and Challenges	4
+   1.4   Contribution	5
+   1.5   Organization of the Project Report	6
+
+CHAPTER 2   Background & Literature Review	7
+   2.1   What is ARP?	7
+   2.2   Why is ARP Vulnerable?	8
+   2.3   Detection Strategy	9
+
+CHAPTER 3   Proposed Work	10
+   3.1   System Architecture	10
+   3.2   Algorithm & Pseudo Code	11
+   3.3   Technologies Used	13
+
+CHAPTER 4   Implementation and Result Analysis	14
+   4.1   Application Interface	14
+   4.2   Features & Functionality	15
+   4.3   Testing Methodology & Results	16
+   4.4   Security & Ethical Considerations	20
+
+CHAPTER 5   Conclusion	21
+   5.1   Learning Outcomes	21
+   5.2   Conclusion	22
+
+References	23
+Appendices	24
+
+
+LIST OF FIGURES
+
+Figure 1   ARPx Pro Version — Main GUI Running on Kali Linux	14
+Figure 2   Network Scan Output — Hosts Discovered on 192.168.0.0/24	16
+Figure 3   BEFORE — Normal ARP Table on Windows Victim Machine	18
+Figure 4   AFTER — ARP Table Poisoned; Gateway IP Mapped to Attacker MAC	18
+
+
+LIST OF TABLES
+
+Table 1   Project Team — Roles and Responsibilities	1
+Table 2   Features & Functionality of ARPx	15
+Table 3   Technologies Used in ARPx	13
+Table 4   Test Team — Testing Areas and Tools	16
+Table 5   Test Environment Configuration	17
+Table 6   Test Results Summary	19
+
+
+CHAPTER 1 INTRODUCTION
+
+1.1   Overview and Motivation
+ARPx (ARP Analyzer Pro) is a Python-based network security toolkit developed by students of GLA University, Mathura. It demonstrates real-world Man-in-the-Middle (MitM) attack techniques and detection strategies in a controlled, educational environment.
+The motivation behind ARPx stems from the growing importance of network-level security in modern computing. The Address Resolution Protocol (ARP), though foundational to local area network communication, was designed for speed and lacks any built-in authentication mechanism. This fundamental design flaw has been exploited by attackers for decades, yet many students and entry-level security professionals lack hands-on exposure to how such attacks work in practice.
+By building a tool that both simulates and detects ARP spoofing, this project bridges the gap between theoretical knowledge and practical application, equipping students with a deeper understanding of Layer 2 network vulnerabilities.
+1.2   Objective
+The primary objectives of the ARPx project are as follows:
+•	To implement a fully functional ARP network scanner capable of discovering all active hosts on a subnet using ARP broadcast packets.
+•	To simulate an ARP Spoofing (MitM) attack in a controlled, isolated network environment, demonstrating cache poisoning on both the victim and gateway.
+•	To develop a real-time ARP Spoof Detection module that passively sniffs traffic and alerts the user upon detecting IP-to-MAC mapping changes.
+•	To design a professional, multi-threaded graphical user interface using Python Tkinter that remains responsive during all network operations.
+•	To validate the tool through a structured testing methodology and document results as proof of concept.
+1.3   Issues and Challenges
+The development of ARPx encountered several technical and ethical challenges that required careful consideration and resolution:
+•	Raw Socket Privileges: ARP packet crafting with Scapy requires root/administrator privileges. The tool is tightly coupled to Linux environments (specifically Kali Linux) where such access can be granted safely in a test setup.
+•	Thread Safety: Running network operations alongside a Tkinter GUI introduces concurrency issues. All network calls were moved to background threads using threading.Thread and GUI updates were routed through root.after() to avoid race conditions.
+•	ARP Restoration: When spoofing is stopped abruptly, victim and gateway ARP tables remain poisoned. Implementing reliable restoration logic required crafting and sending correct ARP replies multiple times to ensure tables are flushed.
+•	Network Isolation: Ensuring testing was only performed on isolated virtual networks to prevent unintentional disruption of real network infrastructure was both a technical and ethical challenge.
+1.4   Contribution
+The key contributions of this project are:
+•	A unified, open-source Python tool that combines scanning, attacking, and detecting in a single GUI application — no existing free tool offers all three in one interface designed explicitly for educational use.
+•	A documented, reproducible test methodology with live ARP table evidence, providing a model for how network security tools can be validated in academic settings.
+•	Responsible design — automatic ARP restoration on stop and no credential capture functionality — setting an ethical standard for student-built offensive security tools.
+1.5   Organization of the Project Report
+The remainder of this report is organized as follows. Chapter 2 provides background on the ARP protocol, its inherent vulnerabilities, and a literature review of related detection strategies. Chapter 3 presents the proposed system architecture, algorithm, and technologies used. Chapter 4 covers the implementation details, the application interface, and a thorough testing methodology with results. Chapter 5 draws conclusions and outlines learning outcomes.
+
+
+CHAPTER 2 BACKGROUND & LITERATURE REVIEW
+
+2.1   What is ARP?
+The Address Resolution Protocol (ARP) is a Layer 2 protocol defined in RFC 826 (1982) used to map an IP address to a physical (MAC) address within a local area network. When a device wants to communicate with another device on the same subnet, it broadcasts an ARP Request: 'Who has IP X? Tell me your MAC address.' The target device responds with an ARP Reply containing its MAC address, and the requesting device caches this mapping for future use.
+ARP operates at the Data Link Layer (Layer 2) of the OSI model and is fundamental to the operation of Ethernet networks. Every device on a network maintains an ARP cache — a table mapping IP addresses to MAC addresses — which it uses to avoid broadcasting for every packet sent.
+2.2   Why is ARP Vulnerable?
+ARP has no built-in authentication mechanism. Any device on a network can send a fake ARP Reply claiming any IP-to-MAC mapping, regardless of whether it received an ARP Request. Worse, most operating systems will accept and cache unsolicited ARP Replies (known as Gratuitous ARP), making the protocol trivially exploitable.
+An attacker exploits this by performing the following steps:
+•	Sending fake ARP Replies to the victim machine, mapping the gateway's IP address to the attacker's MAC address.
+•	Sending fake ARP Replies to the gateway, mapping the victim's IP address to the attacker's MAC address.
+•	The attacker's machine now sits in the middle of all traffic between the victim and the gateway — a classic Man-in-the-Middle (MitM) attack.
+Related works in this domain include research by Whalen (2001) who first formally analyzed ARP poisoning attacks, and subsequent work by Ramachandran and Feamster (2006) on detecting ARP spoofing using flow-level analysis. Bruschi et al. (2003) proposed S-ARP, a secure extension to ARP using asymmetric cryptography, while more recent work has focused on SDN-based mitigation strategies.
+2.3   Detection Strategy
+ARPx implements a passive detection strategy based on ARP cache monitoring. The tool maintains an in-memory ARP table indexed by IP address. When a new ARP Reply is sniffed from the network, the tool compares the sender's MAC address against the cached value for that IP.
+A sudden change in the MAC address associated with a known IP — particularly for high-value IPs like the default gateway — strongly indicates an active ARP spoofing attack. The tool raises an immediate real-time alert in the GUI console when such a change is detected. This approach is consistent with the detection methodology described by Whalen (2001) and does not require any modifications to the underlying network infrastructure.
+
+
+CHAPTER 3 PROPOSED WORK
+
+3.1   System Architecture
+ARPx is organized into four loosely-coupled modules, each running as an independent thread within the main Tkinter event loop:
+•	Network Scanner Module: Sends ARP broadcast packets (Ether(dst='ff:ff:ff:ff:ff:ff')/ARP(pdst=subnet)) to the target CIDR subnet and collects replies to build a host list.
+•	ARP Spoofer Module: Continuously crafts and sends forged ARP Reply packets to both the target (victim) and gateway using Scapy's send() function at a configurable interval.
+•	ARP Restoration Module: On stop, sends correctly crafted ARP Replies (with the real MAC addresses) multiple times to both victim and gateway to restore legitimate ARP table entries.
+•	ARP Detection Module: Uses Scapy's sniff() function with an ARP filter to passively monitor traffic. Maintains an in-memory dict of {IP: MAC} and raises alerts on MAC changes.
+3.2   Algorithm & Pseudo Code
+3.2.1   ARP Spoofing Algorithm
+The ARP spoofing algorithm operates as follows:
+•	INPUT: target_ip, gateway_ip
+•	Resolve target_mac = get_mac(target_ip) using ARP request
+•	Resolve gateway_mac = get_mac(gateway_ip) using ARP request
+•	REPEAT every 2 seconds until stopped:
+•	  Send ARP Reply: op=2, pdst=target_ip, hwdst=target_mac, psrc=gateway_ip
+•	  Send ARP Reply: op=2, pdst=gateway_ip, hwdst=gateway_mac, psrc=target_ip
+•	ON STOP: Send 4 correction packets restoring real MAC mappings to both
+3.2.2   Detection Algorithm
+•	INITIALIZE: arp_cache = {}
+•	SNIFF all ARP packets on the network interface
+•	FOR each ARP Reply (op == 2) received:
+•	  IF packet.psrc (sender IP) IN arp_cache:
+•	    IF arp_cache[packet.psrc] != packet.hwsrc:
+•	      ALERT: 'ARP Spoof Detected! IP [X] changed MAC from [A] to [B]'
+•	  ELSE: arp_cache[packet.psrc] = packet.hwsrc
+3.3   Technologies Used
+Table 3 below summarizes the technologies and libraries used in the ARPx project:
+
+Technology	Role in ARPx
+Python 3.x	Core programming language for all logic and GUI development.
+Scapy 2.5.x	Low-level packet crafting, sending, and sniffing. Used for ARP construction, network scanning, and detection.
+Tkinter	Standard Python GUI toolkit — provides the cross-platform dark-themed desktop interface.
+threading.Thread	Runs all network operations in background threads to keep GUI responsive at all times.
+Kali Linux	Primary operating system — pre-configured for raw socket access and network security tooling.
+
+
+CHAPTER 4 IMPLEMENTATION AND RESULT ANALYSIS
+
+4.1   Application Interface
+The ARPx tool features a professional dark-themed graphical user interface (GUI) built with Python Tkinter. The interface provides three main panels: a Network Scanner panel at the top for subnet input and host discovery, an ARP Spoof Control panel in the middle for target/gateway configuration and attack control, and a live console log at the bottom displaying timestamped events, alerts, and status messages.
+All network operations run in background threads via the threading.Thread class, ensuring the interface remains responsive at all times. GUI updates from background threads are safely routed through the root.after() method to avoid cross-thread Tkinter violations.
+Figure 1: ARPx Pro Version — Main GUI Running on Kali Linux
+4.2   Features & Functionality
+Table 2 below details the complete feature set of the ARPx tool:
+
+Feature	Description
+Network Scanner	Sends ARP broadcast to a CIDR subnet and lists all responding hosts with their IP and MAC addresses.
+ARP Spoofing	Continuously sends forged ARP Replies to both target and gateway, redirecting all traffic through the attacker's machine.
+ARP Restoration	Automatically restores correct ARP entries when spoofing is stopped — prevents lasting network disruption.
+Spoof Detection	Passively sniffs ARP traffic, compares IP-to-MAC mappings against a learned cache, and raises real-time alerts on changes.
+Thread-Safe GUI	All network operations run in background threads via root.after() — the GUI never freezes during operations.
+Live Console Log	Timestamped real-time log showing all events, alerts, and status messages throughout the session.
+
+4.3   Testing Methodology & Results
+4.3.1   Test Team
+The testing was conducted by a dedicated team of three testers who validated each module independently on an isolated virtual network environment.
+
+Tester	Testing Area	Tools Used
+Shashank Saini	Network Scan Module — verified all hosts discovered correctly	ARPx, Wireshark, nmap
+Mayank Sharma	ARP Spoof Module — ran arp -a on victim to verify poisoning	ARPx, Windows CMD, arp -a
+Nitin Agrawal	Detection Module — verified alerts triggered on MAC change	ARPx, Kali terminal, Scapy
+
+4.3.2   Test Environment
+
+Component	Details
+Attacker Machine	Kali Linux VM — running ARPx with sudo privileges
+Victim Machine	Windows 10 VM — ARP table monitored via arp -a command
+Network Type	Isolated VirtualBox Host-Only Network (no internet exposure)
+Attacker IP	10.136.59.40 (Kali Linux)
+Victim IP	192.168.0.108 (Windows 10)
+Gateway IP	192.168.0.1
+Python Version	3.11+
+Scapy Version	2.5.x
+
+4.3.3   Step-by-Step Testing Procedure
+The following steps were followed by the test team to validate the ARP spoofing attack:
+•	Shashank ran ARPx on Kali Linux using: sudo python3 arpx_pro.py
+•	Mayank Sharma ran 'arp -a' on the Windows victim machine to record the BEFORE ARP table.
+•	Target IP (192.168.0.108) and Gateway IP (192.168.0.1) were entered in ARPx. 'Start Spoof' was clicked.
+•	ARPx began sending forged ARP packets every 2 seconds to both the victim and gateway.
+•	Mayank Sharma ran 'arp -a' again on the Windows machine to capture the AFTER ARP table.
+•	Nitin Agrawal enabled 'Start Detect' on ARPx and confirmed an alert was raised when the MAC changed.
+•	'Stop Spoof' was clicked — ARPx automatically restored the correct ARP tables on both machines.
+
+4.3.4   Live Proof — ARP Table Before & After Spoofing
+The screenshots below were captured by tester Mayank Sharma on the Windows victim machine during the live test. They provide direct proof that ARPx successfully poisoned the ARP cache.
+Figure 3: BEFORE — Normal ARP table on Windows victim. 192.168.0.108 not yet present.
+Figure 4: AFTER — ARP table poisoned. 192.168.0.108 now maps to Kali's MAC (08-00-27-1f-b7-23). MitM successful.
+Key Finding: After running ARPx, the victim's ARP table shows 192.168.0.108 mapped to 08-00-27-1f-b7-23 — which is the Kali attacker machine's MAC address. This confirms that traffic interception was successfully achieved.
+
+4.3.5   Test Results Summary
+
+Test Case	Tested By	Expected Result	Status
+Network Scan 192.168.0.0/24	Shashank Saini	All active hosts with IPs and MACs displayed	PASSED
+ARP Spoof — Victim Table	Mayank Sharma	Victim's ARP table shows attacker MAC for gateway	PASSED
+ARP Spoof — Gateway Table	Mayank Sharma	Gateway ARP table shows attacker MAC for victim	PASSED
+ARP Table Restoration	Nitin Agrawal	Both tables restored to correct MACs on Stop	PASSED
+Detection — No Attack	Nitin Agrawal	No false alerts when no spoofing is active	PASSED
+Detection — During Attack	Nitin Agrawal	Alert raised within 2–4 seconds of spoof start	PASSED
+Thread Safety / GUI	Shashank Saini	GUI remains responsive during all operations	PASSED
+
+4.4   Security & Ethical Considerations
+IMPORTANT: This tool must only be used on networks where explicit written authorization has been obtained. Unauthorized ARP spoofing is a criminal offence under the Information Technology Act, 2000 (India) and equivalent laws in other jurisdictions.
+•	ARP Restoration on Stop: ARPx automatically restores correct entries when spoofing is halted — a responsible design choice that prevents unintended network disruption.
+•	No Data Exfiltration: The tool only redirects ARP entries. No credential sniffing or packet capture functionality is implemented.
+•	Isolated Test Network: All testing was performed on a closed VirtualBox Host-Only network with no internet or production network exposure.
+•	Educational Purpose Only: The project is submitted as university coursework to understand network vulnerabilities and is not intended for malicious use.
+
+
+CHAPTER 5 CONCLUSION
+
+5.1   Learning Outcomes
+The development and testing of ARPx provided the following concrete learning outcomes:
+•	Deep understanding of the ARP protocol — its design, purpose, and inherent vulnerabilities at the Data Link Layer.
+•	Hands-on experience with raw packet crafting using Scapy at Layer 2 of the OSI model.
+•	Practical knowledge of MitM attack mechanics, traffic interception, and ARP cache poisoning methodology.
+•	Ability to design and implement real-time network monitoring and anomaly detection systems.
+•	Python GUI development with multi-threaded architecture using Tkinter and the threading module.
+•	Team-based software testing methodology — functional testing, integration testing, and live network testing on isolated environments.
+•	Appreciation for ethical hacking principles: obtaining authorization, isolating test environments, and implementing responsible disclosure practices.
+5.2   Conclusion
+ARPx successfully demonstrates the full lifecycle of an ARP-based Man-in-the-Middle attack — from host discovery and cache poisoning through to detection and remediation — within a professional interactive GUI. The tool was developed by Mayank Singh and Ketan Verma, and rigorously tested by Shashank Saini, Mayank Sharma, and Nitin Agrawal on an isolated virtual network.
+The live test results captured in Figures 3 and 4 provide concrete proof that ARP spoofing was achieved successfully, and the detection module correctly identified the attack within the expected 2–4 second window. All seven test cases passed without exception.
+The project provides a strong foundation for further study in network security, penetration testing, and ethical hacking. Future work could extend ARPx to support additional protocols (DNS spoofing, DHCP starvation), add HTTPS interception capabilities in controlled environments, or port the tool to a web-based interface for broader accessibility.
+Run Command: sudo python3 arpx_pro.py   (Kali Linux — requires root for raw socket access)
+
+
+REFERENCES
+
+1.  Bruschi, D., Ornaghi, A., and Rosti, E. (2003), 'S-ARP: A Secure Address Resolution Protocol', Proceedings of the 19th Annual Computer Security Applications Conference (ACSAC), IEEE, pp. 66–74.
+2.  Postel, J. (1981), 'Internet Protocol', RFC 791, IETF, September 1981. Available at: https://tools.ietf.org/html/rfc791
+3.  Plummer, D. C. (1982), 'An Ethernet Address Resolution Protocol', RFC 826, IETF, November 1982. Available at: https://tools.ietf.org/html/rfc826
+4.  Ramachandran, V. and Feamster, N. (2006), 'Understanding the Network-Level Behavior of Spammers', ACM SIGCOMM Computer Communication Review, vol. 36, no. 4, pp. 291–302.
+5.  Scapy Documentation (2024), 'Scapy — Packet Manipulation Library', Available at: https://scapy.readthedocs.io/en/latest/
+6.  Whalen, S. (2001), 'An Introduction to ARP Spoofing', Node99 White Paper. Available at: http://node99.org/tutorials/arp/
+7.  Python Software Foundation (2024), 'tkinter — Python Interface to Tcl/Tk', Python 3.11 Documentation. Available at: https://docs.python.org/3/library/tkinter.html
+
+
+APPENDICES
+
+Appendix 1 — Core Source Code (Key Functions)
+The following excerpt shows the core ARP spoofing and detection functions from arpx_pro.py:
+
+def spoof(target_ip, spoof_ip):
+    target_mac = get_mac(target_ip)
+    packet = ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=spoof_ip)
+    send(packet, verbose=False)
+
+Appendix 2 — Test Screenshot Captions
+Figure 3 (Courtesy of Mayank Sharma): BEFORE screenshot showing normal Windows ARP table prior to attack.
+Figure 4 (Courtesy of Mayank Sharma): AFTER screenshot showing poisoned ARP entry with attacker MAC 08-00-27-1f-b7-23.

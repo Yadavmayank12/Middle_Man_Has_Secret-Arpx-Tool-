@@ -1,0 +1,85 @@
+
+
+
+GLA University, Mathura
+Department of Computer Science & Engineering
+
+
+◈  ARPx  ◈
+TC-01
+Network Scan Test — test_scan.py
+Tester: Shashank Saini
+
+
+⚠  DISCLAIMER: For authorized educational use only. All tests performed on isolated VirtualBox network.
+
+
+Academic Year 2025–26  |  Network Security Project
+TC-01 — Network Scan Test
+Field	Details
+Test ID	TC-01
+Test File	Network_test.py  /  test_scan.py
+Tester	Shashank Saini
+Module	Network Scanner
+Run Command	sudo python3 tests/test_scan.py
+Status	PASSED ✓
+
+
+Objective
+Verify that the ARP scanner correctly discovers all active hosts on the local subnet and returns their correct IP address and MAC address using ARP broadcast packets.
+
+Test Code
+ 
+# TC-01: Network Scan Test
+# Tester  : Shashank Saini
+# Purpose : Verify ARP scanner discovers all active hosts
+# Run     : sudo python3 tests/test_scan.py
+ 
+from scapy.all import ARP, Ether, srp
+ 
+def test_scan(network):
+    print("[*] Testing Scan Module...")
+ 
+    arp    = ARP(pdst=network)
+    ether  = Ether(dst="ff:ff:ff:ff:ff:ff")
+    packet = ether / arp
+ 
+    result = srp(packet, timeout=2, verbose=0)[0]
+ 
+    if result:
+        print("[+] Scan Working")
+        for sent, received in result:
+            print(f"{received.psrc} --> {received.hwsrc}")
+    else:
+        print("[-] No devices found or scan failed")
+ 
+# Run test
+test_scan("192.168.1.0/24")
+ 
+
+How The Code Works — Step by Step
+1.	ARP(pdst=network) — Creates an ARP "Who has?" request targeting every IP in the subnet range.
+2.	Ether(dst="ff:ff:ff:ff:ff:ff") — Wraps ARP in an Ethernet broadcast frame so ALL devices on the network receive it.
+3.	srp(packet, timeout=2) — Sends the packet at Layer 2 and collects replies from all devices that respond within 2 seconds.
+4.	result loop — Each reply contains psrc (sender IP) and hwsrc (sender MAC). These are printed for verification.
+
+Expected Output
+ 
+[*] Testing Scan Module...
+[+] Scan Working
+192.168.0.1   --> e8:65:d4:c5:42:c0
+192.168.0.100 --> 50:bb:b5:cc:99:82
+192.168.0.107 --> 9e:39:eb:df:40:b8
+192.168.0.108 --> 08:00:27:1f:b7:23
+ 
+
+Test Execution Steps
+5.	Opened terminal on Kali Linux attacker machine.
+6.	Navigated to project directory: cd ARPx/
+7.	Ran command: sudo python3 tests/test_scan.py
+8.	Observed output in terminal — checked that each device IP and MAC was listed.
+9.	Cross-verified results by running arp -a on Windows victim machine.
+
+Actual Result
+ PASSED — Scanner successfully discovered all active hosts on the subnet. IP and MAC addresses matched the arp -a output on the Windows machine. No false positives or missing hosts observed.
+

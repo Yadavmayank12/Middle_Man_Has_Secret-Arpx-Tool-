@@ -1,0 +1,81 @@
+
+
+
+GLA University, Mathura
+Department of Computer Science & Engineering
+
+
+◈  ARPx  ◈
+TC-02
+ARP Detection Test — test_detect.py
+Tester: Mayank Sharma
+
+
+⚠  DISCLAIMER: For authorized educational use only. All tests performed on isolated VirtualBox network.
+
+
+Academic Year 2025–26  |  Network Security Project
+TC-02 — ARP Detection Test
+Field	Details
+Test ID	TC-02
+Test File	Arp_scan.py  /  test_detect.py
+Tester	Mayank Sharma
+Module	ARP Packet Sniffer & Detection Engine
+Run Command	sudo python3 tests/test_detect.py
+Status	PASSED ✓
+
+
+Objective
+Verify that the detection module can passively sniff the network interface, capture live ARP reply packets, and correctly extract and display the source IP and MAC address from each captured packet in real time.
+
+Test Code
+ 
+# TC-02: ARP Detection Test
+# Tester  : Mayank Sharma
+# Purpose : Verify detection module captures ARP replies
+# Run     : sudo python3 tests/test_detect.py
+ 
+from scapy.all import sniff, ARP
+ 
+print("Testing Detection Module...")
+ 
+def detect(packet):
+    if packet.haslayer(ARP) and packet.op == 2:
+        print(f"[!] ARP Reply: {packet.psrc} is at {packet.hwsrc}")
+ 
+sniff(filter="arp", prn=detect, store=0)
+ 
+
+How The Code Works — Step by Step
+1.	sniff(filter="arp", prn=detect, store=0) — Starts a passive listener on the network interface. Captures only ARP packets. store=0 means packets are not stored in memory — processed live.
+2.	For every captured ARP packet, Scapy automatically calls the detect() callback function.
+3.	packet.haslayer(ARP) — Confirms the packet is an ARP packet.
+4.	packet.op == 2 — Filters for ARP Reply packets only. op=1 is ARP Request, op=2 is ARP Reply.
+5.	Prints source IP (psrc) and source MAC (hwsrc) from each reply — these are the fields used to detect spoofing in the main tool.
+
+Expected Output
+ 
+Testing Detection Module...
+[!] ARP Reply: 192.168.0.1   is at e8:65:d4:c5:42:c0
+[!] ARP Reply: 192.168.0.100 is at 50:bb:b5:cc:99:82
+[!] ARP Reply: 10.136.59.40  is at 08:00:27:1f:b7:23
+ 
+
+Test Execution Steps
+6.	Opened terminal on Kali Linux machine.
+7.	Ran command: sudo python3 tests/test_detect.py
+8.	Tool began sniffing ARP traffic on the network.
+9.	On a separate machine, triggered ARP activity (network scan / ping).
+10.	Verified each ARP reply appeared in the terminal output with correct IP and MAC.
+11.	While ARPx spoof was running, verified that the attacker MAC appeared in replies.
+
+Live Proof — Detection During Active Spoof
+Screenshot below captured during live test. Console log shows ARPx detection running — packets being sent every 2 seconds confirming the spoof was active and being detected:
+
+ 
+Figure 1: ARPx console — live spoof packets sent every 2 sec to 192.168.0.100 & 192.168.0.108
+
+Actual Result
+
+PASSED — Detection module successfully captured all live ARP reply packets. Source IP and MAC correctly extracted from each packet. During active spoof, the attacker MAC (08:00:27:1f:b7:23) was detected appearing for the gateway IP — confirming detection works.
+
